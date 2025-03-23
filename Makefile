@@ -17,7 +17,7 @@ export INCLUDE=$(WATCOM)/h/win
 export LIB := lib
 
 # Tools and options
-CC         := wcc
+CC         := $(WATCOM)/binl/wcc
 ASM        := $(WINE) $(MASM_PATH)/ml.exe
 LINK       := $(WINE) $(MASM_PATH)/link16.exe
 ASM_FLAGS  := -c -Cp -nologo -Iinclude
@@ -45,6 +45,7 @@ OBJ_FILES := \
     palettes.obj \
     pci.obj
 FLOPPY_IMG := install.img
+CDROM_IMG := install.iso
 
 # Link driver
 $(DRV_FILE): $(OBJ_FILES) $(DEF_FILE)
@@ -53,6 +54,7 @@ $(DRV_FILE): $(OBJ_FILES) $(DEF_FILE)
 	$(QUIET) $(LINK) $(LINK_FLAGS) $(OBJ_FILES),$@,$(MAP_FILE),$(LINK_LIBS),$(DEF_FILE)
 
 floppy: $(FLOPPY_IMG)
+cdrom: $(CDROM_IMG)
 
 # Create an installation floppy disk image
 $(FLOPPY_IMG): $(DRV_FILE) $(INF_FILE)
@@ -60,6 +62,11 @@ $(FLOPPY_IMG): $(DRV_FILE) $(INF_FILE)
 	$(QUIET) dd if=/dev/zero of=$@ bs=512 count=2880
 	$(QUIET) mformat -i $@
 	$(QUIET) mcopy -i $@ $^ ::
+
+# Create an installation CD-ROM image
+$(CDROM_IMG): $(DRV_FILE) $(INF_FILE)
+	@echo "Creating setup CD-ROM $@"
+	$(QUIET) mkisofs -o $@ $^
 
 # Assemble object file
 %.obj: %.asm

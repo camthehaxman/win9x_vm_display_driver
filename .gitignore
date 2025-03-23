@@ -2,5 +2,6 @@
 *.drv
 *.map
 *.lst
-*.img
 *.swp
+install.img
+install.iso
